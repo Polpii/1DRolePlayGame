@@ -7,20 +7,37 @@
 */ /////////////////////////////////////
 
 
-let displaySize = 100;   // how many pixels are visible in the game
+let displaySize = 30;   // how many pixels are visible in the game
 let pixelSize = 20;     // how big each 'pixel' looks on screen
 
 let playerOne;    // Adding 2 players to the game
 let playerTwo;
-let target;       // and one target for players to catch.
 
 let display;      // Aggregates our final visual output before showing it on the screen
 
 let controller;   // This is where the state machine and game logic lives
 
-let collisionAnimation;   // Where we store and manage the collision animation
+// sounds
+let plopSound;
+let switchSound;
+let loseSound;
+let audioUnlocked = false;
 
-let score;        // Where we keep track of score and winner
+
+function preload() {
+  soundFormats('wav', 'mp3');
+  plopSound = loadSound('plop.wav');
+  switchSound = loadSound('switch.wav');
+  loseSound = loadSound('lose.wav');
+}
+
+
+function tryPlay(_sound) {
+  if (!audioUnlocked) return;
+  if (!_sound) return;
+  if (_sound.isPlaying()) _sound.stop();
+  _sound.play();
+}
 
 
 
@@ -30,16 +47,12 @@ function setup() {
 
   display = new Display(displaySize, pixelSize);        //Initializing the display
 
-  playerOne = new Player(color(255,0,0), parseInt(random(0,displaySize)), displaySize);   // Initializing players
-  playerTwo = new Player(color(0,0,255), parseInt(random(0,displaySize)), displaySize);
-
-  target = new Player(color(255,255,0), parseInt(random(0,displaySize)), displaySize);    // Initializing target using the Player class 
-
-  collisionAnimation = new Animation();     // Initializing animation
+  // Players start from the left
+  // World A: green player, World B: light-blue player
+  playerOne = new Player(color(0, 255, 0), 0, displaySize);
+  playerTwo = new Player(color(120, 200, 255), 0, displaySize);
 
   controller = new Controller();            // Initializing controller
-
-  score = {max:3, winner:color(0,0,0)};     // score stores max number of points, and color 
 
 }
 

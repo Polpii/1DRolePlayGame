@@ -1,3 +1,47 @@
+# 1DRolePlayGame
+
+A collection of 1D interactive games built with [p5.js](https://p5js.org/), where the entire game world is a single row of pixels.
+
+Players are tracked via webcam color detection — each player holds/wears a distinct color (pink, blue, red, yellow, green) and moves their pixel by moving in front of the camera.
+
+## Projects
+
+| Folder | Description |
+|--------|-------------|
+| `P5_TangibleSquidGame1D` | Squid Game–inspired red light / green light. 5 camera-tracked players, vote mechanic between rounds. |
+| `P5_Interface1D` | Base 1D interface template. |
+| `P5_Inception1D` | Inception-themed 1D experience. |
+| `P5_SwitchWorld1D` | World-switching 1D game. |
+| `P5_Wood1D` | Wood-themed 1D scene. |
+
+## Getting Started
+
+1. Open the project folder in [VS Code](https://code.visualstudio.com/)
+2. Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension
+3. Open any project's `index.html` and click **Go Live** (bottom right)
+4. Allow camera access in the browser
+
+## Controls (TangibleSquidGame1D)
+
+| Key | Action |
+|-----|--------|
+| `D` | Move Player 1 (Pink) |
+| `L` / `→` | Move Player 2 (Blue) |
+| `O` | Move Player 3 (Red) |
+| `J` | Move Player 4 (Yellow) |
+| `V` | Move Player 5 (Green) |
+| `R` | Reset game |
+
+Use the **player toggle panel** (right of the video feed) to enable/disable players before a round.
+
+## Stack
+
+- [p5.js](https://p5js.org/) + p5.sound
+- Vanilla JS / HTML / CSS
+- Arduino (optional — see `A_Joystick/` and `Helper/` for physical controller sketches)
+
+---
+
 # 4.043 Design Studio: Interaction Intelligence
 
 Overview of core principles and techniques for the design of interaction, behavior and intelligence across objects and spaces. In a studio environment, students develop low and high-fidelity interactive prototypes that can be deployed and experienced by real users. Lectures cover the history and principles of human-computer interaction, behavior prototyping, physical and graphical user interfaces, machine intelligence, neural networks, and large language models. Provides a foundation in technical skills, such as physical prototyping, coding, and electronics, as well as how to collect data, train and deploy your own neural network models. Students complete a small interaction exercise and a portfolio-level final project. 

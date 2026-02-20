@@ -47,8 +47,8 @@ const PLAYER_NAMES      = ['Pink',   'Blue',  'Red',    'Yellow', 'Green'];
 function preload() {
   soundFormats('wav', 'mp3');
   greenSound = loadSound('green.wav');
-  redSound = loadSound('red.wav');
-  shotSound = loadSound('bark.mp3');
+  redSound = loadSound('suspense.mp3');
+  shotSound = loadSound('jail.wav');
 }
 
 

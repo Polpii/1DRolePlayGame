@@ -35,7 +35,7 @@ class Controller {
         this.redHoldUntil = 0;
 
         // Grace time to let players stop after red light turns on (ms)
-        this.stopGraceMs = 235;
+        this.stopGraceMs = 300;
         this.stopGraceUntil = 0;
 
         // legacy fields kept for compatibility with older code paths

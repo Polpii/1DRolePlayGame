@@ -85,13 +85,10 @@ function setup() {
 
   allPlayers = [playerOne, playerTwo, playerThree, playerFour, playerFive];
 
-  // Hidden camera — never displayed, used only for color tracking
-  video = createCapture(VIDEO);
-  video.size(320, 240);
-  video.hide();
-  if (video.elt) video.elt.setAttribute('playsinline', '');
+  // Camera tracking disabled — keyboard-only control
+  video = null;
+  colorTrackers = [];
   prevVideoPixels = null;
-  colorTrackers = createColorTrackers(320, 240);
 
   controller = new Controller();
 
@@ -126,9 +123,6 @@ function draw() {
 
   // Run state machine (populates display buffer)
   controller.update();
-
-  // Camera color tracking (invisible — keyboard + color both work)
-  updateCameraDrivenPlayers();
 
   // Render the 1D pixel strip at vertical centre
   push();

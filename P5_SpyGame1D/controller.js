@@ -20,7 +20,7 @@ class Controller {
         this.initialGreenAt = 0;
 
         // game master driven light
-        this.gmStillMs = 250;                 // if GM hasn't moved for this long -> red
+        this.gmStillMs = 300;                 // if GM hasn't moved for this long -> red
         this.gmLastMotionAt = 0;              // updated from camera/key
 
         // anti-loop latch: after red->green, GM must advance >= 1 cell before we allow red again
@@ -68,6 +68,9 @@ class Controller {
         this.selectionStartAt    = 0;
         this.selectionStarted    = false;
         this.selectionThreshold  = 3;         // cells to advance to join
+
+        // death animations
+        this.deathAnimations = [];
     }
     
     // This is called from draw() in sketch.js with every frame
@@ -435,6 +438,9 @@ class Controller {
             return;
         }
 
+        // Start animation before resetting position
+        this.addDeathAnimation(_player);
+
         _player.eliminated = true;
         _player.position = 0;
         tryPlay(shotSound);
@@ -443,6 +449,44 @@ class Controller {
         if (_player === this.getGameMasterPlayer()) {
             this.enterWin("PLAYERS");
             return;
+        }
+    }
+
+    addDeathAnimation(_player) {
+        if (!_player) return;
+        this.deathAnimations.push({
+            position: _player.position,
+            col:      _player.playerColor,
+            startAt:  millis(),
+            duration: 700,
+        });
+    }
+
+    drawDeathAnimations() {
+        const now = millis();
+        // Remove expired animations
+        this.deathAnimations = this.deathAnimations.filter(
+            d => now - d.startAt < d.duration
+        );
+        for (const d of this.deathAnimations) {
+            const elapsed = now - d.startAt;
+            const t = elapsed / d.duration; // 0 → 1
+
+            if (t < 0.75) {
+                // Flicker between white and player colour, getting faster
+                const interval = 85 - t * 60; // 85ms → 40ms
+                const phase = Math.floor(elapsed / interval) % 2;
+                display.setPixel(d.position,
+                    phase === 0 ? color(255, 255, 255) : d.col);
+            } else {
+                // Fade player colour to black
+                const fade = 1 - (t - 0.75) / 0.25;
+                display.setPixel(d.position, color(
+                    red(d.col)   * fade,
+                    green(d.col) * fade,
+                    blue(d.col)  * fade
+                ));
+            }
         }
     }
 
@@ -764,6 +808,9 @@ class Controller {
                 display.setPixel(pos, ps[idx].playerColor);
             }
         }
+
+        // Draw death animations on top
+        this.drawDeathAnimations();
     }
 
     resetGame() {
@@ -782,6 +829,8 @@ class Controller {
         this.winStartAt = 0;
         this.winType = null;
         this.winColors = [];
+
+        this.deathAnimations = [];
 
         this.initialGreenStarted = false;
         this.initialSequenceStarted = false;

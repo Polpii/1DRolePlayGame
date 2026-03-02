@@ -44,7 +44,7 @@ function preload() {
   greenSound = loadSound('mission.wav');
   redSound   = loadSound('suspense.mp3');
   shotSound  = loadSound('jail.wav');
-  bgImage    = loadImage('spyBackground.png');
+  bgImage    = loadImage('SpyBG2.png');
 }
 
 function tryPlay(_sound) {
@@ -72,7 +72,7 @@ function unlockAudioIfNeeded() {
 function setup() {
   const canvasH = 500;
   createCanvas(displaySize * pixelSize, canvasH);
-  stripY = floor(canvasH / 2 - pixelSize / 2);
+  stripY = floor(canvasH * 0.40 - pixelSize / 2);
 
   display = new Display(displaySize, pixelSize);
 

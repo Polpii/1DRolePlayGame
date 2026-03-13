@@ -504,6 +504,8 @@ class Controller {
         this.voteStartAt = millis();
         this.voteCandidates = this.getAlivePlayers();
 
+        if (typeof resetPlayerKeyStates === 'function') resetPlayerKeyStates();
+
         // Reset positions for voting strip
         for (let p of this.voteCandidates) {
             p.position = 0;
@@ -774,6 +776,8 @@ class Controller {
         this.initialGreenStarted    = false;
         this.initialGreenAt         = 0;
         this.gmLastMotionAt         = millis();
+
+        if (typeof resetPlayerKeyStates === 'function') resetPlayerKeyStates();
     }
 
     getSelectionSecondsLeft() {
@@ -867,24 +871,32 @@ class Controller {
 // Repeating the same key twice does not advance.
 
 const playerKeyState = [
-    { pressKeys: ['S', 'D'], last: null },  // Pink
-    { pressKeys: ['B', 'N'], last: null },  // Blue
-    { pressKeys: ['O', 'P'], last: null },  // Red
-    { pressKeys: ['K', 'J'], last: null },  // Yellow
-    { pressKeys: ['C', 'V'], last: null },  // Green
+    { pressKeys: ['S', 'D'], last: null, lastStepAt: 0 },  // Pink
+    { pressKeys: ['B', 'N'], last: null, lastStepAt: 0 },  // Blue
+    { pressKeys: ['O', 'P'], last: null, lastStepAt: 0 },  // Red
+    { pressKeys: ['K', 'J'], last: null, lastStepAt: 0 },  // Yellow
+    { pressKeys: ['C', 'V'], last: null, lastStepAt: 0 },  // Green
 ];
 
+const STEP_INTERVAL_MS = 170;
+
 function resetPlayerKeyStates() {
-    for (const s of playerKeyState) { s.last = null; }
+    for (const s of playerKeyState) {
+        s.last = null;
+        s.lastStepAt = 0;
+    }
 }
 
 // Check alternation for player i with (already-uppercased) key ku.
 // Updates state and returns true only when the step is valid.
 function checkAlternate(i, ku) {
     const st = playerKeyState[i];
+    const now = Date.now();
     if (!st.pressKeys.includes(ku))          return false; // not this player's key
+    if (now - st.lastStepAt < STEP_INTERVAL_MS) return false; // too fast
     if (st.last === ku)                      return false; // same key twice — blocked
     st.last  = ku;
+    st.lastStepAt = now;
     return true;
 }
 
@@ -936,7 +948,12 @@ function keyPressed() {
         if (!st.pressKeys.includes(ku)) continue; // not this player's key
 
         if (inSelection) {
-            if (checkAlternate(i, ku)) players[i].move(1);
+            // Selection stays permissive: either of the two keys can join.
+            const now = Date.now();
+            if (now - st.lastStepAt >= STEP_INTERVAL_MS) {
+                st.lastStepAt = now;
+                players[i].move(1);
+            }
 
         } else if (inPlay) {
             if (controller.canMoveNow()) {

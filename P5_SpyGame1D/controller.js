@@ -861,46 +861,30 @@ class Controller {
 
 
 // ─── Alternating-key state ──────────────────────────────────────────────────
-// Works for BOTH hardware breadboard AND regular keyboard:
-//   Breadboard: physical press → UPPERCASE, physical release → lowercase
-//   Regular keyboard: keypress → lowercase  (shift not required)
-//
-// All keys are normalised to UPPERCASE before checking.
-// A per-player cooldown (KEY_COOLDOWN_MS) prevents:
-//   • browser key-autorepeat when a key is held
-//   • double-fire from breadboard press+release pair on green light
-//
-// Strict alternation: the two keys of a player must alternate every step.
-// Pressing the same key twice in a row is silently ignored.
-//
-// Red light: ANY key event for a player → elimination (short 50 ms debounce
-// to absorb the breadboard press+release pair without double-eliminating).
+// Movement is strictly based on alternation between the two keys of each player.
+// Case is ignored entirely by normalizing input to uppercase.
+// Example: S then D then S then D ...
+// Repeating the same key twice does not advance.
 
 const playerKeyState = [
-    { pressKeys: ['S', 'D'], last: null, lastAt: 0 },  // Pink
-    { pressKeys: ['B', 'N'], last: null, lastAt: 0 },  // Blue
-    { pressKeys: ['O', 'P'], last: null, lastAt: 0 },  // Red
-    { pressKeys: ['K', 'J'], last: null, lastAt: 0 },  // Yellow
-    { pressKeys: ['C', 'V'], last: null, lastAt: 0 },  // Green
+    { pressKeys: ['S', 'D'], last: null },  // Pink
+    { pressKeys: ['B', 'N'], last: null },  // Blue
+    { pressKeys: ['O', 'P'], last: null },  // Red
+    { pressKeys: ['K', 'J'], last: null },  // Yellow
+    { pressKeys: ['C', 'V'], last: null },  // Green
 ];
 
-const KEY_COOLDOWN_MS = 120; // min ms between valid steps (green light / selection)
-const RED_DEBOUNCE_MS =  50; // min ms between red-light eliminations (absorbs press+release pair)
-
 function resetPlayerKeyStates() {
-    for (const s of playerKeyState) { s.last = null; s.lastAt = 0; }
+    for (const s of playerKeyState) { s.last = null; }
 }
 
-// Check alternation + cooldown for player i with (already-uppercased) key ku.
+// Check alternation for player i with (already-uppercased) key ku.
 // Updates state and returns true only when the step is valid.
 function checkAlternate(i, ku) {
     const st = playerKeyState[i];
     if (!st.pressKeys.includes(ku))          return false; // not this player's key
-    const now = Date.now();
-    if (now - st.lastAt < KEY_COOLDOWN_MS)   return false; // too fast / autorepeat
-    if (st.last === ku)                       return false; // same key twice — blocked
+    if (st.last === ku)                      return false; // same key twice — blocked
     st.last  = ku;
-    st.lastAt = now;
     return true;
 }
 
@@ -917,8 +901,7 @@ function keyPressed() {
         }
     }
 
-    // Normalise to uppercase so both 'p' (regular keyboard) and
-    // 'P' (breadboard press) / 'p' (breadboard release) all match.
+    // Normalize to uppercase so lowercase/uppercase are treated identically.
     const ku = key.toUpperCase();
 
     const inSelection = controller.gameState === "PLAYER_SELECTION";
@@ -953,25 +936,15 @@ function keyPressed() {
         if (!st.pressKeys.includes(ku)) continue; // not this player's key
 
         if (inSelection) {
-            // Advance once per physical press (cooldown absorbs breadboard release echo)
-            const now = Date.now();
-            if (now - st.lastAt >= KEY_COOLDOWN_MS) {
-                st.lastAt = now;
-                players[i].move(1);
-            }
+            if (checkAlternate(i, ku)) players[i].move(1);
 
         } else if (inPlay) {
             if (controller.canMoveNow()) {
-                // Green light: strict alternation + cooldown
+                // Green light: strict alternation
                 if (checkAlternate(i, ku)) doPlay(players[i]);
             } else {
                 // Red light: any key event = player moved = elimination
-                // Short debounce so breadboard press+release pair only fires once
-                const now = Date.now();
-                if (now - st.lastAt >= RED_DEBOUNCE_MS) {
-                    st.lastAt = now;
-                    doPlay(players[i]);
-                }
+                doPlay(players[i]);
             }
 
         } else if (inVote) {

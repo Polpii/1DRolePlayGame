@@ -374,7 +374,7 @@ class Controller {
     }
 
     lightColor() {
-        if (this.lightState === "GO") return color(0, 255, 255);
+        if (this.lightState === "GO") return color(0, 255, 0);
         return color(255, 0, 0);
     }
 

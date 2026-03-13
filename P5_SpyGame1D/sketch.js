@@ -8,6 +8,7 @@
 let pixelSizeMultiplier = 1; // ← augmente juste ça pour des pixels plus gros
 let displaySize = 60;   // how many pixels are visible in the game
 let pixelSize   = 20;   // how big each 'pixel' looks on screen
+let stripX = 0;         // horizontal position of the 1D strip in the canvas
 let stripY;             // vertical position of the 1D strip in the canvas
 
 let playerOne;   // Pink
@@ -70,9 +71,11 @@ function unlockAudioIfNeeded() {
 
 
 function setup() {
-  pixelSize = floor(windowWidth / displaySize * pixelSizeMultiplier);
-// le strip sera plus large que l'écran, mais les joueurs seront plus gros
+  const maxFitPixelSize = max(1, floor(windowWidth / displaySize));
+  const desiredPixelSize = floor(maxFitPixelSize * pixelSizeMultiplier);
+  pixelSize = min(desiredPixelSize, maxFitPixelSize);
   createCanvas(windowWidth, windowHeight);
+  stripX = floor((windowWidth - displaySize * pixelSize) * 0.5);
   stripY = floor(windowHeight * 0.385 - pixelSize / 2);
 
   display = new Display(displaySize, pixelSize);
@@ -127,7 +130,7 @@ function draw() {
 
   // Render the 1D pixel strip at vertical centre
   push();
-  translate(0, stripY);
+  translate(stripX, stripY);
   noStroke();
   display.show();
   pop();
@@ -235,9 +238,11 @@ function drawOverlays() {
 
 
 function windowResized() {
-  pixelSize = floor(windowWidth / displaySize * pixelSizeMultiplier);
-// le strip sera plus large que l'écran, mais les joueurs seront plus gros
+  const maxFitPixelSize = max(1, floor(windowWidth / displaySize));
+  const desiredPixelSize = floor(maxFitPixelSize * pixelSizeMultiplier);
+  pixelSize = min(desiredPixelSize, maxFitPixelSize);
   resizeCanvas(windowWidth, windowHeight);
+  stripX = floor((windowWidth - displaySize * pixelSize) * 0.5);
   stripY = floor(windowHeight * 0.385 - pixelSize / 2);
   if (display) display.pixelSize = pixelSize;
 }

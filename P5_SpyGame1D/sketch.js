@@ -5,7 +5,7 @@
 
 */ /////////////////////////////////////
 
-let pixelSizeMultiplier = 1.25; // ← augmente juste ça pour des pixels plus gros
+let pixelSizeMultiplier = 1; // ← augmente juste ça pour des pixels plus gros
 let displaySize = 60;   // how many pixels are visible in the game
 let pixelSize   = 20;   // how big each 'pixel' looks on screen
 let stripY;             // vertical position of the 1D strip in the canvas

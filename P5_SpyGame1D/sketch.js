@@ -44,7 +44,7 @@ function preload() {
   greenSound = loadSound('mission.wav');
   redSound   = loadSound('suspense.mp3');
   shotSound  = loadSound('jail.wav');
-  bgImage    = loadImage('SpyBG5.png');
+  bgImage    = loadImage('SpyBG6.png');
 }
 
 function tryPlay(_sound) {
@@ -73,7 +73,7 @@ function setup() {
   pixelSize = floor(windowWidth / displaySize * pixelSizeMultiplier);
 // le strip sera plus large que l'écran, mais les joueurs seront plus gros
   createCanvas(windowWidth, windowHeight);
-  stripY = floor(windowHeight * 0.39 - pixelSize / 2);
+  stripY = floor(windowHeight * 0.385 - pixelSize / 2);
 
   display = new Display(displaySize, pixelSize);
 
@@ -238,7 +238,7 @@ function windowResized() {
   pixelSize = floor(windowWidth / displaySize * pixelSizeMultiplier);
 // le strip sera plus large que l'écran, mais les joueurs seront plus gros
   resizeCanvas(windowWidth, windowHeight);
-  stripY = floor(windowHeight * 0.39 - pixelSize / 2);
+  stripY = floor(windowHeight * 0.385 - pixelSize / 2);
   if (display) display.pixelSize = pixelSize;
 }
 

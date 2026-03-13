@@ -44,7 +44,7 @@ function preload() {
   greenSound = loadSound('mission.wav');
   redSound   = loadSound('suspense.mp3');
   shotSound  = loadSound('jail.wav');
-  bgImage    = loadImage('SpyBG2.png');
+  bgImage    = loadImage('SpyBG5.png');
 }
 
 function tryPlay(_sound) {
@@ -70,9 +70,9 @@ function unlockAudioIfNeeded() {
 
 
 function setup() {
-  const canvasH = 500;
-  createCanvas(displaySize * pixelSize, canvasH);
-  stripY = floor(canvasH * 0.40 - pixelSize / 2);
+  pixelSize = floor(windowWidth / displaySize);
+  createCanvas(windowWidth, windowHeight);
+  stripY = floor(windowHeight * 0.40 - pixelSize / 2);
 
   display = new Display(displaySize, pixelSize);
 
@@ -234,7 +234,10 @@ function drawOverlays() {
 
 
 function windowResized() {
-  // nothing to reposition
+  pixelSize = floor(windowWidth / displaySize);
+  resizeCanvas(windowWidth, windowHeight);
+  stripY = floor(windowHeight * 0.40 - pixelSize / 2);
+  if (display) display.pixelSize = pixelSize;
 }
 
 

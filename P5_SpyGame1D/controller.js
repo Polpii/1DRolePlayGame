@@ -20,7 +20,7 @@ class Controller {
         this.initialGreenAt = 0;
 
         // game master driven light
-        this.gmStillMs = 300;                 // if GM hasn't moved for this long -> red
+        this.gmStillMs = 500;                 // if GM hasn't moved for this long -> red
         this.gmLastMotionAt = 0;              // updated from camera/key
 
         // anti-loop latch: after red->green, GM must advance >= 1 cell before we allow red again
@@ -35,7 +35,7 @@ class Controller {
         this.redHoldUntil = 0;
 
         // Grace time to let players stop after red light turns on (ms)
-        this.stopGraceMs = 400;
+        this.stopGraceMs = 1500;
         this.stopGraceUntil = 0;
 
         // legacy fields kept for compatibility with older code paths

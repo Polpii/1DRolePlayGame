@@ -1,44 +1,73 @@
-# 1DRolePlayGame
+# Finger Spies — A 1D Spy Role-Play Game
 
-A collection of 1D interactive games built with [p5.js](https://p5js.org/), where the entire game world is a single row of pixels.
+> *You are secret agents on a mission — but one of you is a double agent hiding in plain sight.*
 
-Players are tracked via webcam color detection — each player holds/wears a distinct color (pink, blue, red, yellow, green) and moves their pixel by moving in front of the camera.
+In this 1D role-play game, each player is a spy trying to cross a laser corridor from left to right, one pixel at a time. At the start of each round, one player is secretly assigned as the **double agent** (the game master). During the game, spies can only move safely when the light is **green**. The double agent controls the light and can switch it to **red** at any moment to trap moving players. If a spy moves while the light is red, that spy is immediately eliminated. A round ends when only a few players remain or someone reaches the end of the corridor. Then all surviving spies enter a **voting phase**: they must agree on who they believe is the double agent. If they vote correctly, the spies win the round. If they vote for the wrong person, they eliminate an ally and the double agent gains the advantage.
 
-## Projects
+The entire world is a single row of pixels. Every movement, bluff, and timing decision is visible — and critical.
 
-| Folder | Description |
+---
+
+## How to Play
+
+### 1. Player Selection (10 seconds)
+Press your key **3 or more times** to join the game. Each color represents a spy:
+
+| Color  | Keys to walk |
 |--------|-------------|
-| `P5_TangibleSquidGame1D` | Squid Game–inspired red light / green light. 5 camera-tracked players, vote mechanic between rounds. |
-| `P5_Interface1D` | Base 1D interface template. |
-| `P5_Inception1D` | Inception-themed 1D experience. |
-| `P5_SwitchWorld1D` | World-switching 1D game. |
-| `P5_Wood1D` | Wood-themed 1D scene. |
+| Pink   | `S` + `D` (alternate) |
+| Blue   | `B` + `N` (alternate) |
+| Red    | `O` + `P` (alternate) |
+| Yellow | `K` + `J` (alternate) |
+| Green  | `C` + `V` (alternate) |
+
+> Walk by **alternating** your two keys — like stepping left foot, right foot. Pressing the same key twice in a row does nothing.
+
+### 2. Play Phase — Cross the corridor
+- **Green light** → advance pixel by pixel toward the finish line on the right.
+- **Red light** → freeze immediately. Any movement = instant elimination.
+- The double agent controls when the light flips. They will try to lure spies forward, then snap it red to eliminate them.
+
+### 3. Vote Phase — Unmask the traitor
+After the round ends, surviving spies **vote** by moving their pixel into a colored zone on the strip. The zone with the most votes wins. Vote correctly → spies win. Vote wrong → you've eliminated an ally and the double agent triumphs.
+
+---
 
 ## Getting Started
 
-1. Open the project folder in [VS Code](https://code.visualstudio.com/)
+1. Open `P5_SpyGame1D/` in [VS Code](https://code.visualstudio.com/)
 2. Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension
-3. Open any project's `index.html` and click **Go Live** (bottom right)
-4. Allow camera access in the browser
+3. Open `index.html` and click **Go Live** (bottom right)
+4. No camera required — keyboard only
 
-## Controls (TangibleSquidGame1D)
+---
 
-| Key | Action |
-|-----|--------|
-| `D` | Move Player 1 (Pink) |
-| `L` / `→` | Move Player 2 (Blue) |
-| `O` | Move Player 3 (Red) |
-| `J` | Move Player 4 (Yellow) |
-| `V` | Move Player 5 (Green) |
-| `R` | Reset game |
+## Game Flow
 
-Use the **player toggle panel** (right of the video feed) to enable/disable players before a round.
+```
+PLAYER_SELECTION → PLAY → VOTE → WIN (Spies or Double Agent)
+                     ↑___________|  (new round)
+```
+
+---
 
 ## Stack
 
-- [p5.js](https://p5js.org/) + p5.sound
+- [p5.js](https://p5js.org/) 1.2.0 + p5.sound
 - Vanilla JS / HTML / CSS
-- Arduino (optional — see `A_Joystick/` and `Helper/` for physical controller sketches)
+- Optional: Arduino breadboard controllers (`A_Joystick/`, `Helper/`)
+
+---
+
+## Other Projects in this Repo
+
+| Folder | Description |
+|--------|-------------|
+| `P5_TangibleSquidGame1D` | Original Squid Game–inspired prototype (camera-tracked) |
+| `P5_Interface1D` | Base 1D interface template |
+| `P5_Inception1D` | Inception-themed 1D experience |
+| `P5_SwitchWorld1D` | World-switching 1D game |
+| `P5_Wood1D` | Wood-themed 1D scene |
 
 ---
 

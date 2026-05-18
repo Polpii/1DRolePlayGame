@@ -1,320 +1,207 @@
 # Finger Spies — A 1D Spy Role-Play Game
 
-> *You are secret agents on a mission — but one of you is a double agent hiding in plain sight.*
-
-In this 1D role-play game, each player is a spy trying to cross a laser corridor from left to right, one pixel at a time. At the start of each round, one player is secretly assigned as the **double agent** (the game master). During the game, spies can only move safely when the light is **green**. The double agent controls the light and can switch it to **red** at any moment to trap moving players. If a spy moves while the light is red, that spy is immediately eliminated. A round ends when only a few players remain or someone reaches the end of the corridor. Then all surviving spies enter a **voting phase**: they must agree on who they believe is the double agent. If they vote correctly, the spies win the round. If they vote for the wrong person, they eliminate an ally and the double agent gains the advantage.
-
-The entire world is a single row of pixels. Every movement, bluff, and timing decision is visible — and critical.
+> You are secret agents on a mission — but one of you is a double agent hiding in plain sight.
+>
+> A multiplayer social-deduction game built entirely on a **one-dimensional interface** (a single row of pixels).
+>
+> Built in the MIT **4.043 Design Studio: Interaction Intelligence** (Prof. Marcelo Coelho), Spring 2026.
 
 ---
 
-## How to Play
+## Concept
 
-### 1. Player Selection (10 seconds)
-Press your key **3 or more times** to join the game. Each color represents a spy:
+In Finger Spies, each player is a spy trying to cross a laser corridor from left to right, one pixel at a time. At the start of each round, one player is **secretly assigned as the double agent** (the game master). During the play phase, spies can only move safely when the corridor light is green. The double agent controls the light and can switch it to red at any moment to trap moving players. A spy who moves while the light is red is **eliminated immediately**.
 
-| Color  | Keys to walk |
-|--------|-------------|
-| Pink   | `S` + `D` (alternate) |
-| Blue   | `B` + `N` (alternate) |
-| Red    | `O` + `P` (alternate) |
-| Yellow | `K` + `J` (alternate) |
-| Green  | `C` + `V` (alternate) |
+A round ends when only a few spies remain or someone reaches the end of the corridor. Surviving spies then vote: they must agree on who they believe is the double agent. If the spies vote correctly, they win; if they vote for the wrong person, they eliminate an ally and the double agent gains the advantage.
 
-> Walk by **alternating** your two keys — like stepping left foot, right foot. Pressing the same key twice in a row does nothing.
+**The entire world is a single row of pixels.** Every movement, bluff, and timing decision is visible — and critical. The game is a study in how a minimal interface can carry a rich social space.
 
-### 2. Play Phase — Cross the corridor
+---
+
+## How to play
+
+### 1. Player selection (10 s)
+
+Press your key 3 or more times to join the game. Each color represents a spy:
+
+| Color  | Keys (alternate) |
+|--------|------------------|
+| Pink   | `S + D`          |
+| Blue   | `B + N`          |
+| Red    | `O + P`          |
+| Yellow | `K + J`          |
+| Green  | `C + V`          |
+
+Walk by **alternating your two keys** — like stepping left foot, right foot. Pressing the same key twice in a row does nothing. This forces a small but real "physical" rhythm and makes hesitation legible to other players.
+
+### 2. Play phase — Cross the corridor
+
 - **Green light** → advance pixel by pixel toward the finish line on the right.
 - **Red light** → freeze immediately. Any movement = instant elimination.
-- The double agent controls when the light flips. They will try to lure spies forward, then snap it red to eliminate them.
+- The **double agent** controls when the light flips. They will try to lure spies forward, then snap it red to eliminate them.
 
-### 3. Vote Phase — Unmask the traitor
-After the round ends, surviving spies **vote** by moving their pixel into a colored zone on the strip. The zone with the most votes wins. Vote correctly → spies win. Vote wrong → you've eliminated an ally and the double agent triumphs.
+### 3. Vote phase — Unmask the traitor
 
----
-
-## Getting Started
-
-1. Open `P5_SpyGame1D/` in [VS Code](https://code.visualstudio.com/)
-2. Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension
-3. Open `index.html` and click **Go Live** (bottom right)
-4. No camera required — keyboard only
+After the round ends, surviving spies vote by moving their pixel into a colored zone on the strip. The zone with the most votes wins. **Vote correctly → spies win. Vote wrong → you've eliminated an ally** and the double agent triumphs.
 
 ---
 
-## Game Flow
+## Game flow
 
 ```
-PLAYER_SELECTION → PLAY → VOTE → WIN (Spies or Double Agent)
-                     ↑___________|  (new round)
+PLAYER_SELECTION  ──▶  PLAY  ──▶  VOTE  ──▶  WIN (Spies or Double Agent)
+       ▲                                              │
+       └──────────────────  new round  ───────────────┘
 ```
+
+The full state machine is implemented in `controller.js` as a single `switch` statement called every frame by `draw()` in `sketch.js`. Each state owns its own update + render code, which keeps the logic readable and the transitions explicit.
+
+---
+
+## Why a 1D interface?
+
+A **1D interface** is a graphical user interface made from a single row of pixels, where it is *not* possible to display symbolic content (text, icons, sprites). Its severity is what makes it interesting:
+
+- pixels can be squares or circles;
+- they can be arranged as a row, a column, or a ring;
+- pixels cannot move their `(x, y)` position — they can only change color;
+- you cannot stack lines into a 2D grid (that would be a different interface entirely).
+
+Working under that constraint forces every design decision — feedback, spatial mapping, relationships, states — into the open. You cannot hide behind text labels or rich animations. That is the pedagogical point of the 4.043 studio: the limits of the medium make the *fundamental ideas* of interaction design visible.
+
+Finger Spies takes that idea and pushes it into a multiplayer social game, where the constraint becomes the *source of tension*: every player's intent is broadcast on the same single strip.
+
+---
+
+## Interface architecture
+
+The codebase separates three concerns:
+
+1. **Interface structure** — state machine, event listeners, frame loop.
+2. **Game structure** — player objects, scoring, win conditions, voting logic.
+3. **Hardware specifics** — keyboard input today, optional Arduino-based joystick or LED strip output tomorrow.
+
+This separation makes it easy to prototype on a laptop and later swap a `Joystick` driver in or pipe the display buffer to a physical LED strip.
+
+### Logic
+
+| Object        | Role                                                                                          |
+|---------------|-----------------------------------------------------------------------------------------------|
+| `Player`      | Owns position, color, alive/dead, score; receives `move(direction)` calls from `controller`.   |
+| `Controller`  | The main object — wires everything together and owns the state machine.                        |
+| `Display`     | Owns the **display buffer** (`displayBuffer[]`) and is the only object that draws on screen.   |
+| `Animation`   | Frame-based color animations (collisions, lights, victory).                                    |
+
+### Input
+
+Keyboard events live in `controller.js`:
+
+```js
+function keyPressed() {
+  if (key === "S" || key === "s" || key === "D" || key === "d") {
+    playerPink.step(key);
+  }
+  // ...one branch per spy color
+  if (key === "R" || key === "r") {
+    controller.gameState = "PLAYER_SELECTION";
+  }
+}
+```
+
+For physical interfaces, a small Arduino sketch (under `A_Joystick/` and `Helper/`) emits serial messages that map to the same `step()` API, so the rest of the game does not know whether input came from a keyboard or a custom controller.
+
+### Output
+
+Visual output is the only place that writes to the canvas. Frames are built in a buffer, then flushed in one pass:
+
+```js
+this.displayBuffer = [];
+
+show() {
+  for (let i = 0; i < this.displaySize; i++) {
+    fill(this.displayBuffer[i]);
+    rect(i * this.pixelSize, 0, this.pixelSize, this.pixelSize);
+  }
+}
+```
+
+That single-writer pattern makes it trivial to redirect the output later (LED strip, projector, etc.) without touching the game logic.
+
+### State machine
+
+```
+                 ┌───────────────┐
+        ┌───────▶│ PLAYER_SELECT │
+        │        └───────┬───────┘
+        │                │  ≥ 2 players ready
+        │                ▼
+        │        ┌───────────────┐
+        │        │      PLAY     │
+        │        └───────┬───────┘
+        │                │  end-of-round trigger
+        │                ▼
+        │        ┌───────────────┐
+        │        │      VOTE     │
+        │        └───────┬───────┘
+        │                │  votes resolved
+        │                ▼
+        │        ┌───────────────┐
+        └────────│      WIN      │ (Spies / Double Agent)
+                 └───────────────┘
+```
+
+`Controller.update()` runs once per frame. It dispatches on `this.gameState`, performs the state-local update, and writes the resulting pixel colors into `display.displayBuffer`. State transitions are simple assignments to `this.gameState`.
+
+---
+
+## Getting started
+
+1. Clone the repository (use **GitHub Desktop** if you are new to git):
+
+   ```bash
+   git clone https://github.com/Polpii/1DRolePlayGame.git
+   ```
+
+2. Open `P5_SpyGame1D/` in [Visual Studio Code](https://code.visualstudio.com/).
+3. Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension.
+4. Open `index.html` and click **Go Live** (bottom right). The game opens on `http://127.0.0.1:5500/`.
+5. No camera required — keyboard only.
 
 ---
 
 ## Stack
 
-- [p5.js](https://p5js.org/) 1.2.0 + p5.sound
-- Vanilla JS / HTML / CSS
-- Optional: Arduino breadboard controllers (`A_Joystick/`, `Helper/`)
+- **[p5.js](https://p5js.org/) 1.2.0** + `p5.sound` (canvas + audio)
+- **Vanilla JavaScript / HTML / CSS** — no build step
+- **Arduino** (optional) — breadboard joystick controllers in `A_Joystick/`, helpers in `Helper/`
 
 ---
 
-## Other Projects in this Repo
+## Other projects in this repo
 
-| Folder | Description |
-|--------|-------------|
-| `P5_TangibleSquidGame1D` | Original Squid Game–inspired prototype (camera-tracked) |
-| `P5_Interface1D` | Base 1D interface template |
-| `P5_Inception1D` | Inception-themed 1D experience |
-| `P5_SwitchWorld1D` | World-switching 1D game |
-| `P5_Wood1D` | Wood-themed 1D scene |
+The repo also contains a series of related 1D interface experiments produced through the 4.043 studio:
+
+| Folder                      | Description                                                       |
+|-----------------------------|-------------------------------------------------------------------|
+| `P5_TangibleSquid1D`        | Squid Game-inspired prototype with camera color tracking         |
+| `P5_Interface1D`            | Base 1D interface template (single-pixel player + target)        |
+| `P5_Inception1D`            | Inception-themed 1D experience                                    |
+| `P5_SwitchWorld1D`          | World-switching 1D game                                           |
+| `P5_Wood1D`                 | Wood-themed 1D scene                                              |
+| `P5_SpyGame1D`              | **Finger Spies** — the main game described above                  |
 
 ---
 
-# 4.043 Design Studio: Interaction Intelligence
+## About 4.043 Design Studio
 
-Overview of core principles and techniques for the design of interaction, behavior and intelligence across objects and spaces. In a studio environment, students develop low and high-fidelity interactive prototypes that can be deployed and experienced by real users. Lectures cover the history and principles of human-computer interaction, behavior prototyping, physical and graphical user interfaces, machine intelligence, neural networks, and large language models. Provides a foundation in technical skills, such as physical prototyping, coding, and electronics, as well as how to collect data, train and deploy your own neural network models. Students complete a small interaction exercise and a portfolio-level final project. 
- 
-For more information about the course and this project, visit: https://designintelligence.mit.edu/
+4.043 — *Design Studio: Interaction Intelligence* (MIT Media Lab) covers the principles and techniques of interaction, behavior, and intelligence across objects and spaces. Students build low- and high-fidelity prototypes deployable to real users. The course covers HCI history, behavior prototyping, physical and graphical user interfaces, machine intelligence, neural networks, and large language models.
 
-# 1D Interface
+More info: [designintelligence.mit.edu](https://designintelligence.mit.edu/)
 
-A 1D Interface is a graphical user interface made from a single row of pixels and where it's NOT possible to display symbolic content (e.g. text, icons, etc).
+---
 
-Its simplicity provides a great platform for learning some of the fundamental ideas behind interface design.
+## Contributors
 
-A few rules to keep in mind:
-  * Pixels can be squares or circles
-  * They can be arranged as a single row, column, or even a ring
-  * Pixels cannot move their x,y position and can only change color
-  * You cannot stack two or more lines of pixels together (that would make it a 2D interface)
-
-# Instructions Github
-
-1. Create a Github account: https://github.com/ (use your MIT email or add it to an existing github account so you can apply for their education program: https://github.com/education)
-2. Download the Github desktop app: https://desktop.github.com/download/
-3. Fork this repo (Don't just simply download it)
-
-# Instructions Coding
-
-1. Download and install Visual Studio Code and install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension
-2. Install Chrome
-3. Clone this repo into a folder in your computer
-4. Run the game by dragging/dropping the entire folder in Visual Studio Code and clicking on the 'Go Live' button at the bottom right of the screen.
-5. Instructions for playing the game:
-   - Keyboard keys **A** and **D** move Red Player left and right.
-   - Keys **J** and **L** move Blue Player.
-   - First player to catch the Yellow Target 3 times wins.
-   - Winning color takes over the screen.
-   - Press **R** for re-starting the game.
-
-
-
-# Concepts
-
-### Feedback
-
-Similar to objects in the physical world, every user action causes a corresponding reaction from the interface (e.g. a user presses a button and a character moves). A lack of response leads to confusion and the impression that something on the interface is broken.
-
-### Spatial Mapping
-
-Users naturally create a physical map in their mind of where interface elements are located (e.g. _the button on the left top corner closes the window_, or _the trash can is at the bottom right_). Once you've established spatial relationships, breaking them can confuse a user. However, they don't need to be simple. In the 1D game, the space is a continuous circle and the screen 'loops back': exiting on the right makes you re-enter on the left, and vice-versa.
-
-### Relationships
-
-A consistent use of form and colors is a great to way to establish a strong relationships between elements in an interface. For example, when the red player wins, the screen is filled with the color red. A joystick with a red button would make it clear that this controls the red player.
-
-### States
-
-A state machine helps users create a clear mental model of what your software is doing at different points in time. It also helps during design, coding and, in the future, extending your code.
-
-
-# Interface Architecture
-
-The 1D Interface app separates:
-
-1. The interface structure (state machine, event listener, etc) from...
-2. The game structure (playing, score keeping, etc) from...
-3. The particularies of the hardware you are using (keyboard vs. joystick, display vs. LED strip).
-
-This makes it easier to prototype an interaction using your computer and then slowly add a custom joystick or a custom display.
-
-## Logic
-
-Every element in the game is an 'object' which encapsulates core data and provides some internal functionalities. 
-
-If you are unclear on how object oriented programming works, make sure to watch this video: https://youtu.be/T-HGdc8L-7w?si=LXGAMlUwLKVKvWqb
-
-Here are the main ones:
-
-**Player**
-Creates the main game components: players and target. Players can move when the user performs an action on keyboard and keep track of their own score and position. Targets show up in random places and wait to be caught by the Player. When a Player occupies the same pixel as the Target, it gains a point.
-
-**Controller**
-Most important object. Acts as the connection between all the other objects and contains the state machine where the game logic lives. Keyboard events live in controller.js.
-
-**Display**
-It's where we construct the image that shows up on screen. We build a frame at a time and then display it.
-
-## Input
-
-Keyboard input is under controller.js
-
-```javascript
-function keyPressed() {
-  if (key == "A" || key == "a") {
-    playerOne.move(-1);
-  }
-
-  if (key == "D" || key == "d") {
-    playerOne.move(1);
-  }
-
-  if (key == "J" || key == "j") {
-    playerTwo.move(-1);
-  }
-
-  if (key == "L" || key == "l") {
-    playerTwo.move(1);
-  }
-
-  if (key == "R" || key == "r") {
-    controller.gameState = "PLAY";
-  }
-}
-```
-
-## Output
-
-Visual output is handled by display.js
-
-Frames are created, manipulated and stored in the array:
-
-```javascript
-this.displayBuffer = [];
-```
-
-And show() is the only piece of code that writes to the screen:
-
-```javascript
-show() {
-    for (let i =0; i< this.displaySize; i++) {
-    fill(this.displayBuffer[i]);
-    rect(i*this.pixelSize,0,this.pixelSize,this.pixelSize);
-    }
-}
-```
-
-## State Machine
-
-Breaking your game logic into several states and connecting them into a state machine keeps your code organized, making it maintanable and scalable.
-
-The state machine for the 1D Interface looks like this:
-
-```
-                   ┌───────────────┐
-           ┌──────▶│     PLAY      │
-           │       └───────────────┘
-           │             │   ▲
-           │             │   │
-           │   Collision │   │ Score < Max Score
-           │             ▼   │
-           │       ┌───────────────┐
- key = "R" │       │   COLLISION   │
-           │       └───────────────┘
-           │               │
-           │               │ Score >= Max Score
-           │               │
-           │               ▼
-           │       ┌───────────────┐
-           └───────│     SCORE     │
-                   └───────────────┘
-```
-
-It uses a switch statement to separate and transition between each individual state. The switch statement is called at every single frame by the main **draw()** function in sketch.js.
-
-```javascript
-function draw() {
-  background(0, 0, 0);
-
-  controller.update(); // <-- this calls the state machine
-
-  display.show(); // <-- this shows the current state of state machine on screen
-}
-```
-
-```javascript
-switch (this.gameState) {
-  case "PLAY":
-    // play logic happens here
-    break;
-
-  case "COLLISION":
-    // logic for displaying a collision happens here
-    break;
-
-  case "SCORE":
-    // score is tallied here
-    break;
-
-  default:
-    // this never happens
-    break;
-}
-```
-
-To change states, we just need to update the gameState variable:
-
-```javascript
-// like this if you are inside the controller class
-this.gameState = "COLLISION";
-
-// and like this from outside
-controller.gameState = "PLAY";
-```
-
-## Animations
-
-The collision animation is created in animation.js, by the Animation class, and inside its constructor function.
-
-The animation playback is triggered by this piece of code:
-
-```javascript
-// clear screen so we start fresh
-display.clear();
-
-// figure out what frame to show
-let frameToShow = collisionAnimation.currentFrame();
-
-// grab one pixel at a time and load them into the display buffer
-for (let i = 0; i < collisionAnimation.pixels; i++) {
-  display.setPixel(i, collisionAnimation.animation[frameToShow][i]);
-}
-```
-
-This helper functions advances the frame count every time a frame is read:
-
-```javascript
-currentFrame() {
-
-    this.currentFrameCount = this.currentFrameCount + 1;
-
-    if (this.currentFrameCount >= this.numberOfFrames) {
-        this.currentFrameCount = 0;
-    }
-
-    return this.currentFrameCount;
-}
-```
-
-# What you should do next...
-
-1. If you are not familiar with p5js, watch the [Coding Train](https://www.youtube.com/playlist?list=PLRqwX-V7Uu6Zy51Q-x9tMWIv9cueOFTFA) playlist. 
-2. Read through the code so you can understand it. 
-3. Try to make some modifications, for example:
-   * Change the color of a player
-   * Make the display longer
-   * Add more players or more targets
-   * Add a new state to the game
-
-4. Now try creating your own game and behaviors...
+- [@marcelocoelho](https://github.com/marcelocoelho) — Marcelo Coelho (course instructor)
+- [@Polpii](https://github.com/Polpii) — Paul-Peter Arslan
+- [@marcelocoelhomit](https://github.com/marcelocoelhomit)

@@ -1,10 +1,20 @@
-# Finger Spies — A 1D Spy Role-Play Game
+﻿# Finger Spies — A 1D Spy Role-Play Game
 
 > You are secret agents on a mission — but one of you is a double agent hiding in plain sight.
 >
 > A multiplayer social-deduction game built entirely on a **one-dimensional interface** (a single row of pixels).
 >
 > Built in the MIT **4.043 Design Studio: Interaction Intelligence** (Prof. Marcelo Coelho), Spring 2026.
+
+---
+
+## Demo
+
+https://github.com/Polpii/Finger-Spies/raw/main/FingerSpies.mp4
+
+<video src="https://github.com/Polpii/Finger-Spies/raw/main/FingerSpies.mp4" controls width="720"></video>
+
+> If the player above does not render, [**download the demo video**](FingerSpies.mp4) (12 MB).
 
 ---
 
